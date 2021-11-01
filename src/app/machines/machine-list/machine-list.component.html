@@ -1,0 +1,53 @@
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<div class="example-container mat-elevation-z8">
+  <div *ngIf="machines.length > 0 && !isLoading">
+    <mat-table #table [dataSource]="dataSource">
+      <ng-container
+        *ngFor="let disCol of dynamicDisplayedColumns; let colIndex = index"
+        matColumnDef="{{ disCol }}"
+      >
+        <mat-header-cell *matHeaderCellDef>{{ disCol }}</mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ element[disCol] }} </mat-cell>
+      </ng-container>
+      <!-- <ng-container>
+        <mat-header-cell> Action </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button mat-icon-button class="edit-button" (click)="onEdit(row.id)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onDelete(row.id)">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container> -->
+      <mat-header-row
+        *matHeaderRowDef="dynamicDisplayedColumns; sticky: true"
+      ></mat-header-row>
+      <mat-row *matRowDef="let row; columns: dynamicDisplayedColumns"></mat-row>
+    </mat-table>
+  </div>
+  <mat-paginator
+    [hidden]="machines.length <= 0"
+    #paginator
+    [pageSizeOptions]="[10, 20, 30]"
+  >
+  </mat-paginator>
+</div>
+
+<div class="btn-row">
+  <button
+    color="primary"
+    mat-raised-button
+    (click)="onAddItem()"
+    *ngIf="machines.length > 0"
+  >
+    <mat-icon>add</mat-icon>
+    Add
+  </button>
+  <button color="primary" mat-raised-button (click)="showDialog()">
+    <mat-icon>file_upload</mat-icon>
+    Import file
+  </button>
+</div>
+<hr />
+<h1 *ngIf="machines.length <= 0 && !isLoading">No machines added yet!</h1>

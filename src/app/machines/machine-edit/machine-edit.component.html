@@ -1,0 +1,45 @@
+<h1 mat-dialog-title>Modify the values</h1>
+<form class="machine-form" (submit)="onUpdateMachine(f)" #f="ngForm">
+  <mat-form-field>
+    <mat-label>Machine Name</mat-label>
+    <input matInput name="name" [ngModel]="machine?.name" required />
+    <mat-error>This field is required</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Machine Type</mat-label>
+    <input matInput name="type" [ngModel]="machine?.type" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Signal Type</mat-label>
+    <mat-select name="signal" [ngModel]="machine?.signal">
+      <ng-container *ngFor="let sig of SignalType">
+        <mat-option value="{{ sig.id }}"> {{ sig.value }} </mat-option>
+      </ng-container>
+    </mat-select>
+    <!-- <input matInput name="signalType" ngModel /> -->
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Analog Signal</mat-label>
+    <input matInput name="angSignal" [ngModel]="machine?.angSignal" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Modbus</mat-label>
+    <input matInput name="modbus" [ngModel]="machine?.modbus" />
+  </mat-form-field>
+
+  <div class="button-row">
+    <button
+      type="submit"
+      mat-raised-button
+      color="primary"
+      [disabled]="f.invalid"
+    >
+      Update
+    </button>
+    <button mat-raised-button color="warn" (click)="onCancel(f)">Cancel</button>
+  </div>
+</form>

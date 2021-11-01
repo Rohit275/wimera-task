@@ -1,0 +1,66 @@
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<div *ngIf="!isLoading">
+  <section class="example-section">
+    <h1 mat-dialog-title>Import the file</h1>
+    <input
+      type="file"
+      #fileImportInput
+      name="File Upload"
+      id="csvFileUpload"
+      (change)="fileChangeListener($event)"
+      accept=".csv"
+    />
+
+    <ng-container *ngIf="isValidFile">
+      <hr />
+      <h4>Which row to be considered as the header:</h4>
+      <mat-dialog-content>
+        <mat-radio-group
+          aria-labelledby="example-radio-group-label"
+          class="example-radio-group"
+          (change)="getRadio()"
+          [(ngModel)]="selectedRadio"
+        >
+          <mat-radio-button
+            *ngFor="let control of rows; let i = index"
+            [value]="control.value"
+            class="example-radio-button"
+          >
+            {{ control.name }}
+          </mat-radio-button>
+        </mat-radio-group>
+      </mat-dialog-content>
+    </ng-container>
+    <ng-container *ngIf="isHeader">
+      <hr />
+
+      <h4 mat-dialog-title>Select the headers to be displayed:</h4>
+      <mat-dialog-content
+        ><p
+          *ngFor="let control of csvRecords[row]; let i = index"
+          style="max-height: inherit"
+        >
+          <mat-checkbox
+            id="inlineCheckbox{{ i }}"
+            (change)="getSelectedColumn(csvRecords[row][i], $event, i)"
+          >
+            {{ csvRecords[row][i] }}</mat-checkbox
+          >
+        </p></mat-dialog-content
+      >
+      <!-- <section class="example-section" [formGroup]="form">
+        <h4>You chose:</h4>
+        {{ selectedColumn | json }}
+      </section> -->
+    </ng-container>
+    <button mat-raised-button mat-dialog-close color="warn">Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onAddFile()"
+      [disabled]="!isChecked"
+    >
+      Save & Import
+    </button>
+  </section>
+</div>
