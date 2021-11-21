@@ -6,13 +6,43 @@
 
 .mat-table {
   overflow: auto;
-  max-height: 550px;
+  max-height: 500px;
 }
+/* .mat-column-0 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 10% !important;
+  width: 50% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+} */
+
+/* .mat-column-SNo {
+  width: 10px;
+} */
 
 .mat-header-cell {
   font-size: 1rem;
   font-weight: bold;
   text-transform: capitalize;
+}
+
+.mat-column-0,
+.mat-column-1,
+.mat-column-2,
+.mat-column-3,
+.mat-column-4 {
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  color: gray;
 }
 
 input[type="file"] {

@@ -10,8 +10,14 @@ import { Machine } from './machine.model';
 @Injectable({ providedIn: 'root' })
 export class MachineService {
   private machines: any = [];
+  private machinekeyvals: any = [];
+  private collections: any = [];
+  public collectionchoosed: any;
   private machinesUpdated = new Subject<any[]>();
+  private machineKeyvalsUpdated = new Subject<any[]>();
+  private collectionsUpdated = new Subject<any[]>();
   dynamicColumns: any = [];
+  dynamicKeyVal: any = [];
   private editId;
   config = {
     headers: {
@@ -30,15 +36,52 @@ export class MachineService {
       });
   }
 
+  getMachineKeyVals() {
+    this.http
+      .get<{ message: string; machines: any }>(
+        'http://localhost:3000/api/machines/machinekeyvalues'
+      )
+      .pipe(
+        map((machineData) => {
+          //console.log(machineData.message);
+          // console.log(machineData.machines);
+          //console.log('Get Machines KeyValues Called');
+          return machineData.machines;
+        })
+      )
+      .subscribe((machineData) => {
+        this.machinekeyvals = machineData;
+        this.machineKeyvalsUpdated.next([...this.machinekeyvals]);
+      });
+  }
+
+  getCollections() {
+    this.http
+      .get<{ message: string; machines: any }>(
+        'http://localhost:3000/api/machines/collections'
+      )
+      .pipe(
+        map((collection) => {
+          console.log('Get Collection Called');
+          console.log(collection);
+          return collection;
+        })
+      )
+      .subscribe((collection) => {
+        this.collections = collection;
+        this.collectionsUpdated.next([...this.collections]);
+      });
+  }
+
   getMachines() {
-    // console.log('Service getMachine: ', this.machines);
-    // return this.machines;
     this.http
       .get<{ message: string; machines: any }>(
         'http://localhost:3000/api/machines'
       )
       .pipe(
         map((machineData) => {
+          // console.log(machineData.message);
+          // console.log('Get Machines Called');
           return machineData.machines;
         })
       )
@@ -51,24 +94,69 @@ export class MachineService {
   getMachineUpdateListener() {
     return this.machinesUpdated.asObservable();
   }
+  getMachineKeyValUpdateListener() {
+    return this.machineKeyvalsUpdated.asObservable();
+  }
+
+  getchoosedcollection(val) {
+    this.collectionchoosed = val;
+
+    // this.passusercollection();
+  }
+  getCollectionUpdateListener() {
+    return this.collectionsUpdated.asObservable();
+  }
 
   putDynamicColumns(value) {
     this.dynamicColumns = value;
+  }
+  putDynamicKeyVal(value) {
+    this.dynamicKeyVal = value;
   }
 
   getDynamicColumns() {
     return this.dynamicColumns;
   }
 
-  importCsv(csvData) {
+  passKeyValue(FileName, Value) {
     this.http
       .post<{ message: string }>(
-        'http://localhost:3000/api/machines/import',
-        csvData,
+        'http://localhost:3000/api/machines/keyvalues',
+        { Name: FileName, Data: Value },
         this.config
       )
       .subscribe((respData) => {
         console.log(respData.message);
+        this.machinesUpdated.next([...this.machines]);
+      });
+  }
+
+  passusercollection(val) {
+    this.collectionchoosed = val;
+    console.log('MachineService: ', val);
+    this.http
+      .post<{ message: string }>(
+        'http://localhost:3000/api/machines/usercollection',
+        { collection: val },
+        this.config
+      )
+      .subscribe((respData) => {
+        this.getMachines(),
+          this.getMachineKeyVals(),
+          console.log(respData.message);
+      });
+  }
+
+  importCsv(fileName, csvData) {
+    this.http
+      .post<{ message: string }>(
+        'http://localhost:3000/api/machines/import',
+        { Name: fileName, Data: csvData },
+        this.config
+      )
+      .subscribe((respData) => {
+        console.log(respData.message);
+        this.getCollections();
         this.machinesUpdated.next([...this.machines]);
       });
   }

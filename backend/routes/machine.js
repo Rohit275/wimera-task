@@ -104,6 +104,7 @@ router.get("/:id", (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
+  Machine = mongoose.model(usercollection, machineSchema);
   let data = new Machine(req.body);
 
   data.save().then((addedValue) => {

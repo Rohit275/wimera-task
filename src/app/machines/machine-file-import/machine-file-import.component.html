@@ -11,6 +11,75 @@
       accept=".csv"
     />
 
+    <ng-container *ngIf="isKeyValue">
+      <hr />
+      <h4>Is there any Key-value pairs in the row:</h4>
+      <mat-dialog-content>
+        <mat-radio-group
+          aria-labelledby="example-radio-group-label"
+          class="example-radio-group"
+          (change)="getChoice()"
+          [(ngModel)]="selectedRadio"
+        >
+          <mat-radio-button
+            *ngFor="let control of choice; let i = index"
+            [value]="control.value"
+            class="example-radio-button"
+          >
+            {{ control.value }}
+          </mat-radio-button>
+        </mat-radio-group>
+      </mat-dialog-content>
+    </ng-container>
+
+    <ng-container *ngIf="KeyValueRow">
+      <hr />
+      <h4>Which row has the Key-Value Pairs:</h4>
+      <mat-dialog-content>
+        <mat-radio-group
+          aria-labelledby="example-radio-group-label"
+          class="example-radio-group"
+          (change)="getKeyValuesRow()"
+          [(ngModel)]="selectedRadio"
+        >
+          <mat-radio-button
+            *ngFor="let control of rows; let i = index"
+            [value]="control.value"
+            class="example-radio-button"
+          >
+            {{ control.name }}
+          </mat-radio-button>
+        </mat-radio-group>
+      </mat-dialog-content>
+    </ng-container>
+    <ng-container *ngIf="keyValue">
+      <hr />
+
+      <h4 mat-dialog-title>Select the Key-Value Pairs to be stored:</h4>
+      <mat-dialog-content
+        ><p
+          *ngFor="let control of csvRecords[keyvalrow]; let i = index"
+          style="max-height: inherit"
+        >
+          <mat-checkbox
+            id="inlineCheckbox{{ i }}"
+            (change)="getSelectedKeyValues(csvRecords[keyvalrow][i], $event)"
+          >
+            {{ csvRecords[keyvalrow][i] }}</mat-checkbox
+          >
+        </p></mat-dialog-content
+      >
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onNextFile()"
+        [disabled]="!isValueAdded"
+      >
+        Next
+        <mat-icon>navigate_next</mat-icon>
+      </button>
+    </ng-container>
+
     <ng-container *ngIf="isValidFile">
       <hr />
       <h4>Which row to be considered as the header:</h4>
@@ -53,14 +122,24 @@
         {{ selectedColumn | json }}
       </section> -->
     </ng-container>
-    <button mat-raised-button mat-dialog-close color="warn">Cancel</button>
+
+    <button
+      mat-raised-button
+      color="secondary"
+      (click)="onBack()"
+      [hidden]="!KeyValueRow && !isValidFile && !keyValue && !isHeader"
+    >
+      <mat-icon>navigate_before</mat-icon>
+      Back
+    </button>
     <button
       mat-raised-button
       color="primary"
       (click)="onAddFile()"
-      [disabled]="!isChecked"
+      [hidden]="!isChecked && !isHeader"
     >
       Save & Import
     </button>
+    <button mat-raised-button mat-dialog-close color="warn">Cancel</button>
   </section>
 </div>

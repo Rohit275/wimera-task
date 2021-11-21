@@ -6,6 +6,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import * as _ from 'underscore';
+import { ThisReceiver, ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-machine-file-import',
@@ -18,20 +19,31 @@ export class MachineFileImportComponent implements OnInit {
   public isValidFile: boolean = false;
   public isHeader: boolean = false;
   public isChecked: boolean = false;
-
+  public isKeyValue: boolean = false;
+  public KeyValueRow: boolean = false;
+  public keyValue: boolean = false;
+  public isValueAdded: boolean = false;
   selectedRadio: string;
 
   csvRecords: any = [];
   columnKey: any[] = [];
+  keyValuePairs: any[] = [];
   columnValues = [];
 
   public row;
+  public choiceVal;
+  public keyvalrow;
+  public FileName;
   public rows: any[] = [
     { id: 1, name: 'Row 1', value: '0' },
     { id: 2, name: 'Row 2', value: '1' },
     { id: 3, name: 'Row 3', value: '2' },
     { id: 4, name: 'Row 4', value: '3' },
     { id: 5, name: 'Row 5', value: '4' },
+  ];
+  public choice: any[] = [
+    { id: 1, value: 'Yes' },
+    { id: 2, value: 'No' },
   ];
 
   constructor(
@@ -46,6 +58,7 @@ export class MachineFileImportComponent implements OnInit {
 
   fileChangeListener($event: any): void {
     const files = $event.srcElement.files;
+    this.FileName = $event.srcElement.files[0].name;
     this.header =
       (this.header as unknown as string) === 'true' || this.header === false;
     this.readData(files);
@@ -58,7 +71,7 @@ export class MachineFileImportComponent implements OnInit {
       .subscribe(
         (result: Array<any>) => {
           this.csvRecords.push(...result);
-          this.isValidFile = true;
+          this.isKeyValue = true;
         },
         (error: NgxCSVParserError) => {
           console.log('Error', error);
@@ -66,6 +79,28 @@ export class MachineFileImportComponent implements OnInit {
       );
   }
 
+  getChoice() {
+    this.choiceVal = this.selectedRadio;
+    if (this.choiceVal == 'Yes') {
+      this.isKeyValue = false;
+      this.KeyValueRow = true;
+      this.isValidFile = false;
+      this.selectedRadio = null;
+    } else if (this.choiceVal == 'No') {
+      this.KeyValueRow = false;
+      this.isKeyValue = false;
+      this.isValidFile = true;
+      this.selectedRadio = null;
+    }
+  }
+
+  getKeyValuesRow() {
+    this.keyvalrow = this.selectedRadio;
+    this.selectedRadio = null;
+    this.KeyValueRow = false;
+    this.isKeyValue = false;
+    this.keyValue = true;
+  }
   getRadio() {
     this.row = this.selectedRadio;
     this.isValidFile = false;
@@ -73,6 +108,19 @@ export class MachineFileImportComponent implements OnInit {
     console.log('Radio value: ', this.selectedRadio);
   }
 
+  getSelectedKeyValues(value, event: MatCheckboxChange) {
+    if (event.checked) {
+      this.isValueAdded = true;
+      this.keyValuePairs.push(value);
+    } else {
+      if (this.keyValuePairs.length - 1 == 0) {
+        this.isValueAdded = false;
+      }
+      let index = this.keyValuePairs.indexOf(value);
+      this.keyValuePairs.splice(index, 1);
+    }
+    console.log(this.keyValuePairs);
+  }
   getSelectedColumn(value, event: MatCheckboxChange, index) {
     if (event.checked) {
       this.isChecked = true;
@@ -111,6 +159,29 @@ export class MachineFileImportComponent implements OnInit {
     return output;
   }
 
+  onNextFile() {
+    this.keyValue = false;
+    this.isValidFile = true;
+    console.log('File Name :', this.FileName);
+    this.machineService.passKeyValue(this.FileName, this.keyValuePairs);
+  }
+
+  onBack() {
+    this.KeyValueRow = false;
+    this.isKeyValue = true;
+    if (this.isValidFile) {
+      this.isValidFile = false;
+      this.isKeyValue = true;
+    }
+    if (this.keyValue) {
+      this.keyValue = false;
+      this.isKeyValue = true;
+    }
+    if (this.isHeader) {
+      this.isHeader = false;
+      this.isKeyValue = true;
+    }
+  }
   onAddFile() {
     if (this.csvRecords.length > 0) {
       var filteredData = [],
@@ -118,12 +189,12 @@ export class MachineFileImportComponent implements OnInit {
       final = this.getColumnValues();
 
       filteredData = this.convertKeyValue(final);
-      // console.log('Key value Pairs', filteredData);
 
-      this.machineService.importCsv(filteredData);
+      this.machineService.importCsv(this.FileName, filteredData);
       setTimeout(() => {
         this.isLoading = true;
         this.machineService.getMachines();
+        this.machineService.getCollections();
         this.dialogRef.close();
       }, 1000);
       this.isLoading = false;
